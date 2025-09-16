@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <string>
 
 std::string langInput(std::string& userLang); // gets language from user
 
@@ -11,7 +12,7 @@ int main(const int argc, char* const argv[])
 {
 
     // Create, open, append command line arguments to file
-    std::ofstream outputFile("snippets.txt", std::ios::app);
+    std::ofstream outputFile("snippets.csv", std::ios::app);
     std::ostringstream os;
 
     std::string userLang;
@@ -27,28 +28,39 @@ int main(const int argc, char* const argv[])
 
         if (argc > 1)
         {
-            os << "\n\nLanguage: " << userLang << "\n"; // Add language and tags to output file
-            os << "Tags(" << userTags.size() << "): ";
-            for (auto& s : userTags) {
-                os << s << " ";
+            os << userLang << ","; // Add language
+            std::string AllTags;
+            for (size_t k = 0; k < userTags.size(); k++) // Add tags
+            {
+                if (k == userTags.size() - 1) 
+                {
+                    AllTags += userTags[k];
+                }
+                else
+                {
+                    AllTags += userTags[k] + ",";
+                }
             }
-			os << "\n\n";
+            os << "\"" << AllTags << "\""
+                << ","
+                << "\"";
             for (int i = 1; i < argc; i++)
             {
                 std::cout << "Argument " << i << ": " << argv[i] << "\n";
                 os << argv[i]; // join arguments
                 if (i < argc - 1) os << " ";
             }
+            os << "\"";
         }
         else
         {
             std::cout << "No argument was provided " << "\n Usage: CSM.exe <snippet>" << std::endl;
-		    outputFile.close();
+            outputFile.close();
             return 1;
         }
 
         outputFile << os.str();
-        outputFile << "\n\n";
+        outputFile << "\n";
         outputFile.close();
 
         return 0;
@@ -59,7 +71,7 @@ int main(const int argc, char* const argv[])
         return 1;
     }
 
-    
+
 
 }
 
@@ -74,15 +86,36 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags)
 {
     std::string temp;
     int tagCount{ 0 };
+    int tagMax{ 10 };
 
-    std::cout << "How many tags would you like to add? ";
+    std::cout << "How many tags would you like to add?(max " << tagMax << "): ";
     std::cin >> tagCount;
 
-    for (int j = 0; j < tagCount; j++)
+    do
     {
-        std::cout << "Enter tag #" << j + 1 << " : ";
-        std::cin >> temp;
-        userTags.push_back(temp);
-    }
+
+        if (tagCount < 1)
+        {
+            std::cout << "No tags will be added." << std::endl;
+            return userTags;
+        }
+        else if (tagCount > tagMax)
+        {
+            std::cout << "Maximum number of tags is: " << tagMax << "\n";
+            std::cout << "Enter a number below or equal to " << tagMax << ": ";
+            std::cin >> tagCount;
+        }
+        else
+        {
+            for (int j = 0; j < tagCount; j++)
+            {
+                std::cout << "Enter tag #" << j + 1 << " : ";
+                std::cin >> temp;
+                userTags.push_back(temp);
+            }
+        }
+
+    } while (tagCount < 1 || tagCount > tagMax);
+
     return userTags;
 }
