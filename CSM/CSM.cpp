@@ -8,7 +8,9 @@ std::string langInput(std::string& userLang); // gets language from user
 
 std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets tags from user
 
-int main(const int argc, char* const argv[])
+std::string csv_escape(const std::string& escapeText); // escapes csv format
+
+int main()
 {
 
     // Create, open, append command line arguments to file
@@ -17,22 +19,58 @@ int main(const int argc, char* const argv[])
 
     std::string userLang;
     std::vector<std::string> userTags;
+    std::string codeLine;
+    std::string codeSnippet;
 
 
     if (outputFile.is_open())
     {
         std::cout << "File opened successfully.\n";
 
-        langInput(userLang);
-        tagInput(userTags);
+        std::cout << "Enter code snippet: ";
 
-        if (argc > 1)
+        while (std::getline(std::cin, codeLine)) 
         {
+            std::string quitWord = "doneSnippet";
+            bool finishInputFound = codeLine.find(quitWord) != std::string::npos;
+
+
+            if (finishInputFound)
+            {
+                break;
+            }
+            else
+            {
+                codeSnippet += codeLine;
+                codeSnippet += "\n";
+            }
+
+        }
+
+
+        std::cout << "Your Input: \n" << codeSnippet << "\n";
+
+
+        if (codeSnippet.empty())
+        {
+            std::cout << "No argument was provided" << std::endl;
+            outputFile.close();
+            return 1;
+        }
+        else
+        {
+            os << csv_escape(codeSnippet);
+            os << ",";
+
+            langInput(userLang);
             os << userLang << ","; // Add language
+
+            tagInput(userTags);
             std::string AllTags;
+
             for (size_t k = 0; k < userTags.size(); k++) // Add tags
             {
-                if (k == userTags.size() - 1) 
+                if (k == userTags.size() - 1)
                 {
                     AllTags += userTags[k];
                 }
@@ -41,26 +79,13 @@ int main(const int argc, char* const argv[])
                     AllTags += userTags[k] + ",";
                 }
             }
+
             os << "\"" << AllTags << "\""
                 << ","
-                << "\"";
-            for (int i = 1; i < argc; i++)
-            {
-                std::cout << "Argument " << i << ": " << argv[i] << "\n";
-                os << argv[i]; // join arguments
-                if (i < argc - 1) os << " ";
-            }
-            os << "\"";
+                << "\""
+                << "\n";
         }
-        else
-        {
-            std::cout << "No argument was provided " << "\n Usage: CSM.exe <snippet>" << std::endl;
-            outputFile.close();
-            return 1;
-        }
-
         outputFile << os.str();
-        outputFile << "\n";
         outputFile.close();
 
         return 0;
@@ -118,4 +143,29 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags)
     } while (tagCount < 1 || tagCount > tagMax);
 
     return userTags;
+}
+
+std::string csv_escape(const std::string& escapeText) {
+    // If field contains comma, quote, or newline, enclose in quotes
+    if (escapeText.find(',') != std::string::npos ||
+        escapeText.find('"') != std::string::npos ||
+        escapeText.find('\n') != std::string::npos
+        ) {
+
+        std::string escaped;
+        escaped += '"';
+
+        for (char c : escapeText) {
+            if (c == '"') {
+                escaped += "\"\"";
+            }
+            else {
+                escaped += c;
+            }
+        }
+
+        escaped += '"';
+        return escaped;
+    }
+    return escapeText;
 }
