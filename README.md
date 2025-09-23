@@ -8,7 +8,6 @@ CSM gets command line arguments and adds them to a csv file
  - Tag adding - users can add tags to the snippet (current limit is 10, can be increased easily)
 
 ## To-do:
- - Fix snippet adding (snippets with commas, quotes etc.)
  - Add snippet search (via tags, languages and keywords)
  - Upgrade storage to a database (SQLite db)
  - Add interactive mode using a TUI library
