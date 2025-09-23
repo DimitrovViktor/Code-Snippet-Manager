@@ -10,6 +10,8 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets t
 
 std::string csv_escape(const std::string& escapeText); // escapes csv format
 
+std::string csv_search();
+
 int main()
 {
 
@@ -22,73 +24,90 @@ int main()
     std::string codeLine;
     std::string codeSnippet;
 
+    int menuChoice;
+
 
     if (outputFile.is_open())
     {
-        std::cout << "File opened successfully.\n";
+        std::cout << "File opened successfully.\n"
+            << "Pick an option from the menu:\n"
+            << "[1] Add snippet\n"
+            << "[2] Search snippet\n"
+            << "Your choice: ";
+        std::cin >> menuChoice;
 
-        std::cout << "Enter code snippet: ";
-
-        while (std::getline(std::cin, codeLine)) 
+        switch (menuChoice)
         {
-            std::string quitWord = "doneSnippet";
-            bool finishInputFound = codeLine.find(quitWord) != std::string::npos;
+        case 1: // OPTION 1 (ADD SNIPPET)
+                std::cout << "You chose [1] Add snippet \nEnter code snippet: ";
 
-
-            if (finishInputFound)
-            {
-                break;
-            }
-            else
-            {
-                codeSnippet += codeLine;
-                codeSnippet += "\n";
-            }
-
-        }
-
-
-        std::cout << "Your Input: \n" << codeSnippet << "\n";
-
-
-        if (codeSnippet.empty())
-        {
-            std::cout << "No argument was provided" << std::endl;
-            outputFile.close();
-            return 1;
-        }
-        else
-        {
-            os << csv_escape(codeSnippet);
-            os << ",";
-
-            langInput(userLang);
-            os << userLang << ","; // Add language
-
-            tagInput(userTags);
-            std::string AllTags;
-
-            for (size_t k = 0; k < userTags.size(); k++) // Add tags
-            {
-                if (k == userTags.size() - 1)
+                while (std::getline(std::cin, codeLine))
                 {
-                    AllTags += userTags[k];
+                    std::string quitWord = "doneSnippet";
+                    bool finishInputFound = codeLine.find(quitWord) != std::string::npos;
+
+
+                    if (finishInputFound)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        codeSnippet += codeLine;
+                        codeSnippet += "\n";
+                    }
+
+                }
+
+
+                std::cout << "Your Input: \n" << codeSnippet << "\n";
+
+
+                if (codeSnippet.empty())
+                {
+                    std::cout << "No argument was provided" << std::endl;
+                    outputFile.close();
+                    return 1;
                 }
                 else
                 {
-                    AllTags += userTags[k] + ",";
+                    os << csv_escape(codeSnippet);
+                    os << ",";
+
+                    langInput(userLang);
+                    os << userLang << ","; // Add language
+
+                    tagInput(userTags);
+                    std::string AllTags;
+
+                    for (size_t k = 0; k < userTags.size(); k++) // Add tags
+                    {
+                        if (k == userTags.size() - 1)
+                        {
+                            AllTags += userTags[k];
+                        }
+                        else
+                        {
+                            AllTags += userTags[k] + ",";
+                        }
+                    }
+
+                    os << "\"" << AllTags << "\""
+                        << ","
+                        << "\""
+                        << "\n";
                 }
-            }
+                outputFile << os.str();
+                outputFile.close();
 
-            os << "\"" << AllTags << "\""
-                << ","
-                << "\""
-                << "\n";
+                return 0;
+                break;
+
+        case 2: // OPTION 2 (SEARCH SNIPPET)
+            csv_search();
+            break;
+
         }
-        outputFile << os.str();
-        outputFile.close();
-
-        return 0;
     }
     else
     {
@@ -96,7 +115,7 @@ int main()
         return 1;
     }
 
-
+    
 
 }
 
@@ -168,4 +187,38 @@ std::string csv_escape(const std::string& escapeText) {
         return escaped;
     }
     return escapeText;
+}
+
+std::string csv_search()
+{
+    std::cout << "You chose [2] Search snippet\n"
+              << "Would you like to search by: \n"
+              << "[1] Language\n"
+              << "[2] Tag(s)\n"
+              << "[3] Word(inside of code) search\n"
+              << "Your choice: ";
+
+    int searchChoice;
+    std::cin >> searchChoice;
+
+    switch (searchChoice)
+        {
+            case 1:
+                std::cout << "You chose [1] Language Search\n";
+                // pseudocode comments below
+                // 
+                // ask user to input language to search for
+                // look at language fields only
+                // find which snippets match language 
+                // search for snippets in the same rows as matched language
+                // print out snippets 
+                //
+                break;
+            case 2:
+                std::cout << "You chose [2] Tag Search\n";
+                break;
+            case 3:
+                std::cout << "You chose [3] Word Search\n";
+                break;
+        }
 }
