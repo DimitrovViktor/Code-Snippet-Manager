@@ -3,11 +3,12 @@
 CSM gets command line arguments and adds them to a csv file
 
 ## Features:
+ - Menu - asks for number of feature to use (Add Snippet / Search Snippet)
  - Snippet adding - append snippet at the end of file
  - Language adding - allows the user to write what language the snippet is in
  - Tag adding - users can add tags to the snippet (current limit is 10, can be increased easily)
 
 ## To-do:
- - Add snippet search (via tags, languages and keywords)
+ - Add snippet search (via tags, languages and keywords) (in progress)
  - Upgrade storage to a database (SQLite db)
  - Add interactive mode using a TUI library
