@@ -191,6 +191,20 @@ std::string csv_escape(const std::string& escapeText) {
 
 std::string csv_search()
 {
+
+    std::vector<std::string> record;
+
+
+    std::ifstream readFile("snippets.csv");
+
+    bool found_record = false;
+
+    std::string field_one;
+    std::string field_two;
+    std::string field_three;
+
+    std::string search_term;
+
     std::cout << "You chose [2] Search snippet\n"
               << "Would you like to search by: \n"
               << "[1] Language\n"
@@ -204,15 +218,25 @@ std::string csv_search()
     switch (searchChoice)
         {
             case 1:
-                std::cout << "You chose [1] Language Search\n";
-                // pseudocode comments below
-                // 
-                // ask user to input language to search for
-                // look at language fields only
-                // find which snippets match language 
-                // search for snippets in the same rows as matched language
-                // print out snippets 
-                //
+                std::cout << "You chose [1] Language Search\n What word?: ";
+                std::cin >> search_term;
+
+                while (getline(readFile, field_one, ',') && !found_record)
+                {
+                    getline(readFile, field_two, ',');
+                    getline(readFile, field_three, '\n');
+
+                    if (field_two == search_term)
+                    {
+                        found_record = true;
+                        record.push_back(field_one);
+                        record.push_back(field_two);
+                        record.push_back(field_three);
+                    }
+                }
+                std::cout << "Snippet: " << record[0] << "\n";
+                std::cout << "Language: " << record[1] << "\n";
+                std::cout << "Tag(s): " << record[2] << "\n";
                 break;
             case 2:
                 std::cout << "You chose [2] Tag Search\n";
