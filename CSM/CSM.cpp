@@ -218,7 +218,7 @@ std::string csv_search()
     switch (searchChoice)
         {
             case 1:
-                std::cout << "You chose [1] Language Search\n What word?: ";
+                std::cout << "You chose [1] Language Search\n Pick a language: ";
                 std::cin >> search_term;
 
                 while (getline(readFile, field_one, ',') && !found_record)
@@ -234,15 +234,43 @@ std::string csv_search()
                         record.push_back(field_three);
                     }
                 }
-                std::cout << "Snippet: " << record[0] << "\n";
                 std::cout << "Language: " << record[1] << "\n";
+
                 std::cout << "Tag(s): " << record[2] << "\n";
+
+                std::cout << "Snippet: " << record[0] << "\n";
                 break;
             case 2:
-                std::cout << "You chose [2] Tag Search\n";
+                std::cout << "You chose [2] Tag Search\n Pick a tag: ";
+                std::cin >> search_term;
+
+                while (getline(readFile, field_three, ',') && !found_record)
+                {
+                    getline(readFile, field_three, '\n');
+                    getline(readFile, field_one, ',');
+                    getline(readFile, field_two, ',');
+                    
+                    std::size_t found1 = field_three.find(search_term);
+
+                    if (found1!=std::string::npos)
+                    {
+                        found_record = true;
+                        record.push_back(field_one);
+                        record.push_back(field_two);
+                        record.push_back(field_three);
+                    }
+                }
+                std::cout << "Language: " << record[1] << "\n";
+
+                std::cout << "Tag(s): " << record[2] << "\n";
+                
+                std::cout << "Snippet: " << record[0] << "\n";
+                
                 break;
             case 3:
-                std::cout << "You chose [3] Word Search\n";
+                std::cout << "You chose [3] Word Search\n Pick a word: ";
+                std::cin >> search_term;
+
                 break;
         }
 }
