@@ -14,5 +14,5 @@ CSM gets command line arguments and adds them to a csv file
  - Add snippet search (via tags, languages and keywords) (in progress)
  - Upgrade storage to a database (SQLite db) (in progress)
  - Add interactive mode using a TUI library
- - Fix tag search
+ - Fix tag search (in progress)
  - Add keyword search
