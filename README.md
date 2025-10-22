@@ -1,6 +1,6 @@
-# CSM - A simple C++ Code Snippet Manager
+# A simple C++ Code Snippet Manager (CSM)
 
-CSM gets command line arguments and adds them to a csv file
+This simple program takes code as input from users and stores it into a file for later use.
 
 ## Features:
  - Menu - asks for number of feature to use (Add Snippet / Search Snippet)
