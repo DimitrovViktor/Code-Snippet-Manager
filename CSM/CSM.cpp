@@ -3,31 +3,39 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include "sqlite/sqlite3.h"
 
 std::string langInput(std::string& userLang); // gets language from user
 
 std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets tags from user
 
-std::string csv_escape(const std::string& escapeText); // escapes csv format
+std::string db_escape(const std::string& escapeText); // escapes db format
 
-std::string csv_search();
+std::string db_search();
 
 int main()
 {
-
-    // Create, open, append command line arguments to file
-    std::ofstream outputFile("snippets.csv", std::ios::app);
-    std::ostringstream os;
+    std::ostringstream testInput;
+    std::string testInsert;
 
     std::string userLang;
     std::vector<std::string> userTags;
+    std::string AllTags;
     std::string codeLine;
     std::string codeSnippet;
 
     int menuChoice;
 
-
-    if (outputFile.is_open())
+    char* err;
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+    sqlite3_open("snippets.db", &db);
+    int rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS Snippets(code varchar(10000), language varchar(20), tags varchar(100));", NULL, NULL, &err);
+    if (rc != SQLITE_OK)
+    {
+        std::cout << "error:" << err << std::endl;
+    }
+    else
     {
         std::cout << "File opened successfully.\n"
             << "Pick an option from the menu:\n"
@@ -39,84 +47,75 @@ int main()
         switch (menuChoice)
         {
         case 1: // OPTION 1 (ADD SNIPPET)
-                std::cout << "You chose [1] Add snippet \nEnter code snippet: ";
+            std::cout << "You chose [1] Add snippet \nEnter code snippet: ";
 
-                while (std::getline(std::cin, codeLine))
+            while (std::getline(std::cin, codeLine))
+            {
+                std::string quitWord = "doneSnippet";
+                bool finishInputFound = codeLine.find(quitWord) != std::string::npos;
+
+
+                if (finishInputFound)
                 {
-                    std::string quitWord = "doneSnippet";
-                    bool finishInputFound = codeLine.find(quitWord) != std::string::npos;
-
-
-                    if (finishInputFound)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        codeSnippet += codeLine;
-                        codeSnippet += "\n";
-                    }
-
-                }
-
-
-                std::cout << "Your Input: \n" << codeSnippet << "\n";
-
-
-                if (codeSnippet.empty())
-                {
-                    std::cout << "No argument was provided" << std::endl;
-                    outputFile.close();
-                    return 1;
+                    break;
                 }
                 else
                 {
-                    os << csv_escape(codeSnippet);
-                    os << ",";
-
-                    langInput(userLang);
-                    os << userLang << ","; // Add language
-
-                    tagInput(userTags);
-                    std::string AllTags;
-
-                    for (size_t k = 0; k < userTags.size(); k++) // Add tags
-                    {
-                        if (k == userTags.size() - 1)
-                        {
-                            AllTags += userTags[k];
-                        }
-                        else
-                        {
-                            AllTags += userTags[k] + ",";
-                        }
-                    }
-
-                    os << "\"" << AllTags << "\""
-                        << ","
-                        << "\""
-                        << "\n";
+                    codeSnippet += codeLine;
+                    codeSnippet += "\n";
                 }
-                outputFile << os.str();
-                outputFile.close();
 
-                return 0;
-                break;
+            }
+
+
+            std::cout << "Your Input: \n" << codeSnippet << "\n";
+
+
+            if (codeSnippet.empty())
+            {
+                std::cout << "No argument was provided" << std::endl;
+                sqlite3_close(db);
+                return 1;
+            }
+            else
+            {
+                langInput(userLang);
+
+                tagInput(userTags);
+                
+
+                for (size_t k = 0; k < userTags.size(); k++) // Add tags
+                {
+                    if (k == userTags.size() - 1)
+                    {
+                        AllTags += userTags[k];
+                    }
+                    else
+                    {
+                        AllTags += userTags[k] + ",";
+                    }
+                }
+
+                testInput.str("");
+                testInput << "INSERT INTO Snippets(code, language, tags) VALUES ('" << db_escape(codeSnippet) << "', '" << db_escape(userLang) << "', '" << db_escape(AllTags) << "' )";
+                testInsert = testInput.str();
+                rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, &err);
+
+            }
+
+
+            return 0;
+            break;
 
         case 2: // OPTION 2 (SEARCH SNIPPET)
-            csv_search();
+            db_search();
             break;
 
         }
-    }
-    else
-    {
-        std::cerr << "Error opening file." << std::endl;
-        return 1;
-    }
 
-    
-
+    }
+    sqlite3_close(db);
+ 
 }
 
 std::string langInput(std::string& userLang)
@@ -164,19 +163,19 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags)
     return userTags;
 }
 
-std::string csv_escape(const std::string& escapeText) {
+std::string db_escape(const std::string& escapeText) {
     // If field contains comma, quote, or newline, enclose in quotes
-    if (escapeText.find(',') != std::string::npos ||
-        escapeText.find('"') != std::string::npos ||
-        escapeText.find('\n') != std::string::npos
+    if (//escapeText.find(',') != std::string::npos ||
+        escapeText.find("'") != std::string::npos
+        // escapeText.find('\n') != std::string::npos
         ) {
 
         std::string escaped;
-        escaped += '"';
+        escaped += "'";
 
         for (char c : escapeText) {
-            if (c == '"') {
-                escaped += "\"\"";
+            if (c == '\'') {
+                escaped += "''";
             }
             else {
                 escaped += c;
@@ -189,7 +188,7 @@ std::string csv_escape(const std::string& escapeText) {
     return escapeText;
 }
 
-std::string csv_search()
+std::string db_search()
 {
 
     std::vector<std::string> record;
