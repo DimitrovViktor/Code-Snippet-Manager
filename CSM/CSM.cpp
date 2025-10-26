@@ -11,7 +11,7 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets t
 
 std::string db_escape(const std::string& escapeText); // escapes db format
 
-std::string db_search();
+std::string db_search(std::ostringstream& testInput);
 
 int main()
 {
@@ -108,7 +108,22 @@ int main()
             break;
 
         case 2: // OPTION 2 (SEARCH SNIPPET)
-            db_search();
+            db_search(testInput);
+            testInsert = testInput.str();
+            rc = sqlite3_prepare_v2(db, testInsert.c_str(), -1, &stmt, nullptr);
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                // Get column values
+                const unsigned char* code = sqlite3_column_text(stmt, 0);
+                const unsigned char* language = sqlite3_column_text(stmt, 1);
+                const unsigned char* tags = sqlite3_column_text(stmt, 2);
+
+                // Print results
+                std::cout << "Snippet:\n" << (code ? reinterpret_cast<const char*>(code) : "") << "\n";
+                std::cout << "Language: " << (language ? reinterpret_cast<const char*>(language) : "") << "\n";
+                std::cout << "Tags: " << (tags ? reinterpret_cast<const char*>(tags) : "") << "\n";
+                std::cout << "-----------------------------\n";
+            }
+
             break;
 
         }
@@ -188,7 +203,7 @@ std::string db_escape(const std::string& escapeText) {
     return escapeText;
 }
 
-std::string db_search()
+std::string db_search(std::ostringstream& testInput)
 {
 
     std::vector<std::string> record;
@@ -220,55 +235,26 @@ std::string db_search()
                 std::cout << "You chose [1] Language Search\n Pick a language: ";
                 std::cin >> search_term;
 
-                while (getline(readFile, field_one, ',') && !found_record)
-                {
-                    getline(readFile, field_two, ',');
-                    getline(readFile, field_three, '\n');
+                testInput.str("");
+                testInput << " SELECT * FROM Snippets WHERE language LIKE '%" << search_term << "%'";
 
-                    if (field_two == search_term)
-                    {
-                        found_record = true;
-                        record.push_back(field_one);
-                        record.push_back(field_two);
-                        record.push_back(field_three);
-                    }
-                }
-                std::cout << "Language: " << record[1] << "\n";
-
-                std::cout << "Tag(s): " << record[2] << "\n";
-
-                std::cout << "Snippet: " << record[0] << "\n";
                 break;
+
             case 2:
                 std::cout << "You chose [2] Tag Search\n Pick a tag: ";
                 std::cin >> search_term;
 
-                while (getline(readFile, field_three, ',') && !found_record)
-                {
-                    getline(readFile, field_three, '\n');
-                    getline(readFile, field_one, ',');
-                    getline(readFile, field_two, ',');
-                    
-                    std::size_t found1 = field_three.find(search_term);
-
-                    if (found1!=std::string::npos)
-                    {
-                        found_record = true;
-                        record.push_back(field_one);
-                        record.push_back(field_two);
-                        record.push_back(field_three);
-                    }
-                }
-                std::cout << "Language: " << record[1] << "\n";
-
-                std::cout << "Tag(s): " << record[2] << "\n";
-                
-                std::cout << "Snippet: " << record[0] << "\n";
+                testInput.str("");
+                testInput << " SELECT * FROM Snippets WHERE tags LIKE '%" << search_term << "%'";
                 
                 break;
+
             case 3:
                 std::cout << "You chose [3] Word Search\n Pick a word: ";
                 std::cin >> search_term;
+                
+                testInput.str("");
+                testInput << " SELECT * FROM Snippets WHERE code LIKE '%" << search_term << "%'";
 
                 break;
         }
