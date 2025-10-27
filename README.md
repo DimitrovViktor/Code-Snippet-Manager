@@ -1,22 +1,24 @@
 # A simple C++ Code Snippet Manager (CSM)
 
-This simple program takes code as input from users and stores it into a file for later use.
+This simple CLI program which takes code as input from users and stores it into a file for later use.
 
 ## Features:
 
-### Menu - asks for number of feature to use (Add Snippet / Search Snippet)
+### Menu
+The menu contains two options:
+ - Add Snippet
+ - Search Snippet
 
 ### Add Snippet
- - Snippet adding - append snippet at the end of file
- - Language adding - allows the user to write what language the snippet is in
- - Tag adding - users can add tags to the snippet (current limit is 10, can be increased easily)
+ - Snippet adding - append snippet at the end of database
+ - Language adding - choose language of snippet
+ - Tag adding - choose tag of snippet
    
 ### Search Snippet
- - Language Search - users can search up snippets by giving the language as input
- - Tag Search - search by tag
+ - Language Search - search snippets by language
+ - Tag Search - search snippets by tag
 
 ## To-do:
- - Add snippet search (via tags, languages and keywords) (in progress)
- - Add interactive mode using a TUI library
- - Fix tag search (in progress)
- - Add keyword search
+ - Add GUI
+ - Add snippet editing
+ - Add snippet deletion
