@@ -1,6 +1,6 @@
 # A simple C++ Code Snippet Manager (CSM)
 
-This simple CLI program which takes code as input from users and stores it into a file for later use.
+A simple CLI program which takes code as input from users and stores it into a database for later use.
 
 ## Features:
 
