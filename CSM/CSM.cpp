@@ -11,7 +11,9 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets t
 
 std::string db_escape(const std::string& escapeText); // escapes db format
 
-std::string db_search(std::ostringstream& testInput);
+void db_search(std::ostringstream& testInput);
+
+void db_delete(std::ostringstream& testInput);
 
 int main()
 {
@@ -41,6 +43,7 @@ int main()
             << "Pick an option from the menu:\n"
             << "[1] Add snippet\n"
             << "[2] Search snippet\n"
+            << "[3] Delete snippet\n"
             << "Your choice: ";
         std::cin >> menuChoice;
 
@@ -82,7 +85,7 @@ int main()
                 langInput(userLang);
 
                 tagInput(userTags);
-                
+
 
                 for (size_t k = 0; k < userTags.size(); k++) // Add tags
                 {
@@ -127,11 +130,18 @@ int main()
 
             break;
 
+        case 3: // OPTION 3 (DELETE SNIPPET)
+            db_delete(testInput);
+            testInsert = testInput.str();
+            rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, nullptr);
+
+            break;
+
         }
 
     }
     sqlite3_close(db);
- 
+
 }
 
 std::string langInput(std::string& userLang)
@@ -204,7 +214,7 @@ std::string db_escape(const std::string& escapeText) {
     return escapeText;
 }
 
-std::string db_search(std::ostringstream& testInput)
+void db_search(std::ostringstream& testInput)
 {
 
     std::vector<std::string> record;
@@ -214,68 +224,84 @@ std::string db_search(std::ostringstream& testInput)
 
     bool found_record = false;
 
-    std::string field_one;
-    std::string field_two;
-    std::string field_three;
-
     std::string search_term;
 
     std::cout << "You chose [2] Search snippet\n"
-              << "Would you like to search by: \n"
-              << "[1] Language\n"
-              << "[2] Tag(s)\n"
-              << "[3] Word(inside of code) search\n"
-              << "[4] ID(number) search\n"
-              << "[5] Show all snippets\n"
-              << "Your choice: ";
+        << "Would you like to search by: \n"
+        << "[1] Language\n"
+        << "[2] Tag(s)\n"
+        << "[3] Word(inside of code) search\n"
+        << "[4] ID(number) search\n"
+        << "[5] Show all snippets\n"
+        << "Your choice: ";
 
     int searchChoice;
     std::cin >> searchChoice;
 
     switch (searchChoice)
-        {
-            case 1:
-                std::cout << "You chose [1] Language Search\n Pick a language: ";
-                std::cin >> search_term;
+    {
+    case 1:
+        std::cout << "You chose [1] Language Search\n Pick a language: ";
+        std::cin >> search_term;
 
-                testInput.str("");
-                testInput << " SELECT * FROM Snippets WHERE language LIKE '%" << search_term << "%'";
+        testInput.str("");
+        testInput << " SELECT * FROM Snippets WHERE language LIKE '%" << search_term << "%'";
 
-                break;
+        break;
 
-            case 2:
-                std::cout << "You chose [2] Tag Search\n Pick a tag: ";
-                std::cin >> search_term;
+    case 2:
+        std::cout << "You chose [2] Tag Search\n Pick a tag: ";
+        std::cin >> search_term;
 
-                testInput.str("");
-                testInput << " SELECT * FROM Snippets WHERE tags LIKE '%" << search_term << "%'";
-                
-                break;
+        testInput.str("");
+        testInput << " SELECT * FROM Snippets WHERE tags LIKE '%" << search_term << "%'";
 
-            case 3:
-                std::cout << "You chose [3] Word Search\n Pick a word: ";
-                std::cin >> search_term;
-                
-                testInput.str("");
-                testInput << " SELECT * FROM Snippets WHERE code LIKE '%" << search_term << "%'";
+        break;
 
-                break;
+    case 3:
+        std::cout << "You chose [3] Word Search\n Pick a word: ";
+        std::cin >> search_term;
 
-            case 4:
-                std::cout << "You chose [4] ID(number) search\n Pick an ID number: ";
-                std::cin >> search_term;
+        testInput.str("");
+        testInput << " SELECT * FROM Snippets WHERE code LIKE '%" << search_term << "%'";
 
-                testInput.str("");
-                testInput << " SELECT * FROM Snippets WHERE id =" << search_term;
+        break;
 
-                break;
+    case 4:
+        std::cout << "You chose [4] ID(number) search\n Pick an ID number: ";
+        std::cin >> search_term;
 
-            case 5:
-                std::cout << "[5] Show all snippets\n";
+        testInput.str("");
+        testInput << " SELECT * FROM Snippets WHERE id =" << search_term;
 
-                testInput.str("");
-                testInput << "SELECT * FROM Snippets";
+        break;
 
-                break;
-        }
+    case 5:
+        std::cout << "[5] Show all snippets\n";
+
+        testInput.str("");
+        testInput << "SELECT * FROM Snippets";
+
+        break;
+    }
+}
+
+void db_delete(std::ostringstream& testInput)
+{
+
+    std::vector<std::string> record;
+
+
+    std::ifstream readFile("snippets.csv");
+
+    bool found_record = false;
+
+    std::string delete_term;
+
+    std::cout << "You chose to DELETE a snippet.\n Pick an ID number: ";
+    std::cin >> delete_term;
+
+    testInput.str("");
+    testInput << " DELETE FROM Snippets WHERE id =" << delete_term;
+
 }
