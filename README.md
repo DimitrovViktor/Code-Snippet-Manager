@@ -17,6 +17,8 @@ The menu contains two options:
 ### Search Snippet
  - Language Search - search snippets by language
  - Tag Search - search snippets by tag
+ - ID Search - serach snippets by ID
+ - Show all snippets
 
 ## To-do:
  - Add GUI
