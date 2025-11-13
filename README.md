@@ -20,7 +20,9 @@ The menu contains two options:
  - ID Search - serach snippets by ID
  - Show all snippets
 
+### Delete Snippet
+Asks for ID and removes snippet from db.
+
 ## To-do:
  - Add GUI
  - Add snippet editing
- - Add snippet deletion
