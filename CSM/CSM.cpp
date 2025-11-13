@@ -30,7 +30,7 @@ int main()
     sqlite3* db;
     sqlite3_stmt* stmt;
     sqlite3_open("snippets.db", &db);
-    int rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS Snippets(code varchar(10000), language varchar(20), tags varchar(100));", NULL, NULL, &err);
+    int rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS SNIPPETS(id INTEGER PRIMARY KEY AUTOINCREMENT,code varchar(10000), language varchar(20), tags varchar(100));", NULL, NULL, &err);
     if (rc != SQLITE_OK)
     {
         std::cout << "error:" << err << std::endl;
@@ -113,15 +113,16 @@ int main()
             rc = sqlite3_prepare_v2(db, testInsert.c_str(), -1, &stmt, nullptr);
             while (sqlite3_step(stmt) == SQLITE_ROW) {
                 // Get column values
-                const unsigned char* code = sqlite3_column_text(stmt, 0);
-                const unsigned char* language = sqlite3_column_text(stmt, 1);
-                const unsigned char* tags = sqlite3_column_text(stmt, 2);
+                const unsigned char* id = sqlite3_column_text(stmt, 0);
+                const unsigned char* code = sqlite3_column_text(stmt, 1);
+                const unsigned char* language = sqlite3_column_text(stmt, 2);
+                const unsigned char* tags = sqlite3_column_text(stmt, 3);
 
                 // Print results
+                std::cout << "----------------------------- ID [" << (id ? reinterpret_cast<const char*>(id) : "") << "] -----------------------------\n";
                 std::cout << "Snippet:\n" << (code ? reinterpret_cast<const char*>(code) : "") << "\n";
                 std::cout << "Language: " << (language ? reinterpret_cast<const char*>(language) : "") << "\n";
                 std::cout << "Tags: " << (tags ? reinterpret_cast<const char*>(tags) : "") << "\n";
-                std::cout << "-----------------------------\n";
             }
 
             break;
@@ -224,6 +225,8 @@ std::string db_search(std::ostringstream& testInput)
               << "[1] Language\n"
               << "[2] Tag(s)\n"
               << "[3] Word(inside of code) search\n"
+              << "[4] ID(number) search\n"
+              << "[5] Show all snippets\n"
               << "Your choice: ";
 
     int searchChoice;
@@ -255,6 +258,23 @@ std::string db_search(std::ostringstream& testInput)
                 
                 testInput.str("");
                 testInput << " SELECT * FROM Snippets WHERE code LIKE '%" << search_term << "%'";
+
+                break;
+
+            case 4:
+                std::cout << "You chose [4] ID(number) search\n Pick an ID number: ";
+                std::cin >> search_term;
+
+                testInput.str("");
+                testInput << " SELECT * FROM Snippets WHERE id =" << search_term;
+
+                break;
+
+            case 5:
+                std::cout << "[5] Show all snippets\n";
+
+                testInput.str("");
+                testInput << "SELECT * FROM Snippets";
 
                 break;
         }
