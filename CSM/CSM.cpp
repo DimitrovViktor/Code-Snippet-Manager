@@ -7,13 +7,15 @@
 
 std::string langInput(std::string& userLang); // gets language from user
 
-std::vector<std::string> tagInput(std::vector<std::string>& userTags); // gets tags from user
+std::string tagInput(std::vector<std::string>& userTags, std::string& AllTags); // gets tags from user
 
 std::string db_escape(const std::string& escapeText); // escapes db format
 
 void db_search(std::ostringstream& testInput);
 
 void db_delete(std::ostringstream& testInput);
+
+void db_edit(std::ostringstream& testInput);
 
 int main()
 {
@@ -44,6 +46,7 @@ int main()
             << "[1] Add snippet\n"
             << "[2] Search snippet\n"
             << "[3] Delete snippet\n"
+            << "[4] Edit snippet\n"
             << "Your choice: ";
         std::cin >> menuChoice;
 
@@ -84,20 +87,7 @@ int main()
             {
                 langInput(userLang);
 
-                tagInput(userTags);
-
-
-                for (size_t k = 0; k < userTags.size(); k++) // Add tags
-                {
-                    if (k == userTags.size() - 1)
-                    {
-                        AllTags += userTags[k];
-                    }
-                    else
-                    {
-                        AllTags += userTags[k] + ",";
-                    }
-                }
+                tagInput(userTags, AllTags);
 
                 testInput.str("");
                 testInput << "INSERT INTO Snippets(code, language, tags) VALUES ('" << db_escape(codeSnippet) << "', '" << db_escape(userLang) << "', '" << db_escape(AllTags) << "' )";
@@ -137,10 +127,18 @@ int main()
 
             break;
 
+        case 4: // OPTION 4 (EDIT SNIPPET)
+            db_edit(testInput);
+            testInsert = testInput.str();
+            rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, nullptr);
+
+            break;
+
         }
 
     }
     sqlite3_close(db);
+    std::cout << "\nAll complete, database closed." << std::endl;
 
 }
 
@@ -151,7 +149,7 @@ std::string langInput(std::string& userLang)
     return userLang;
 }
 
-std::vector<std::string> tagInput(std::vector<std::string>& userTags)
+std::string tagInput(std::vector<std::string>& userTags, std::string& AllTags)
 {
     std::string temp;
     int tagCount{ 0 };
@@ -166,7 +164,6 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags)
         if (tagCount < 1)
         {
             std::cout << "No tags will be added." << std::endl;
-            return userTags;
         }
         else if (tagCount > tagMax)
         {
@@ -186,7 +183,19 @@ std::vector<std::string> tagInput(std::vector<std::string>& userTags)
 
     } while (tagCount < 1 || tagCount > tagMax);
 
-    return userTags;
+    for (size_t k = 0; k < userTags.size(); k++) // Add tags
+    {
+        if (k == userTags.size() - 1)
+        {
+            AllTags += userTags[k];
+        }
+        else
+        {
+            AllTags += userTags[k] + ",";
+        }
+    }
+
+    return AllTags;
 }
 
 std::string db_escape(const std::string& escapeText) {
@@ -303,5 +312,72 @@ void db_delete(std::ostringstream& testInput)
 
     testInput.str("");
     testInput << " DELETE FROM Snippets WHERE id =" << delete_term;
+
+}
+
+void db_edit(std::ostringstream& testInput)
+{
+
+    std::string editID;
+    int editOption;
+    std::string newCodeLine;
+    std::string newCodeSnippet = "";
+    std::vector<std::string> newTags;
+    std::string editTags;
+    std::string newLang;
+
+    std::cout << "You chose to EDIT a snippet.\n Pick an ID number: ";
+    std::cin >> editID;
+    std::cout << "What would you like to edit?\n[1] Code replace\n[2] Tags replace\n[3] Language replace \nYour choice : ";
+    std::cin >> editOption;
+
+    testInput.str("");
+    testInput << " UPDATE Snippets";
+    switch (editOption) {
+    case 1:
+        std::cout << "You chose to REPLACE the CODE of snippet #" << editID << ".\n";
+        std::cout << "Enter the new code snippet below (use doneEdit to finish editing):\n";
+
+        while (std::getline(std::cin, newCodeLine))
+        {
+            std::string quitWord = "doneEdit";
+            bool finishInputFound = newCodeLine.find(quitWord) != std::string::npos;
+
+
+            if (finishInputFound)
+            {
+                break;
+            }
+            else
+            {
+                newCodeSnippet += newCodeLine;
+                newCodeSnippet += "\n";
+            }
+
+        }
+        testInput << " SET code ='" << db_escape(newCodeSnippet) << "'";
+
+        testInput << " WHERE id ='" << editID << "'";
+        break;
+
+    case 2:
+        std::cout << "You chose to REPLACE the TAGS of snippet #" << editID << ".\n";
+        std::cout << "The tags will be reset and you can pick new ones now.\n";
+        tagInput(newTags, editTags);
+        
+        testInput << " SET tags ='" << db_escape(editTags) << "'";
+
+        testInput << " WHERE id ='" << editID << "'";
+
+        break;
+
+    case 3:
+        std::cout << "You chose to REPLACE the LANGUAGE of snippet #" << editID << ".\n";
+        langInput(newLang);
+
+        testInput << " SET language ='" << db_escape(newLang) << "'";
+        testInput << " WHERE id ='" << editID << "'";
+        break;
+    }
 
 }
