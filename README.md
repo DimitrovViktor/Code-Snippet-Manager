@@ -1,28 +1,41 @@
 # A simple C++ Code Snippet Manager (CSM)
 
-A simple CLI program which takes code snippest and stores them into a database. The snippets can then be accessed by searching through the db.
+A simple CLI program which stores snippets and allows users to add, edit and delete them.
 
 ## Features:
 
 ### Menu
-The menu contains two options:
+
+The menu has four options:
  - Add Snippet
  - Search Snippet
+ - Delete Snippet
+ - Edit Snippet
 
 ### Add Snippet
+
  - Snippet adding - append snippet at the end of database
  - Language adding - choose language of snippet
  - Tag adding - choose tag of snippet
    
 ### Search Snippet
+
  - Language Search - search snippets by language
  - Tag Search - search snippets by tag
  - ID Search - serach snippets by ID
  - Show all snippets
 
 ### Delete Snippet
+
 Asks for ID and removes snippet from db.
 
+### Edit Snippet
+
+Asks for ID and allows users to:
+ - Replace Code
+ - Replace Tags
+ - Replace Language
+
 ## To-do:
- - Add GUI
- - Add snippet editing
+
+ - Add GUI/TUI
