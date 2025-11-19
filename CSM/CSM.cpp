@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -226,13 +225,6 @@ std::string db_escape(const std::string& escapeText) {
 void db_search(std::ostringstream& testInput)
 {
 
-    std::vector<std::string> record;
-
-
-    std::ifstream readFile("snippets.csv");
-
-    bool found_record = false;
-
     std::string search_term;
 
     std::cout << "You chose [2] Search snippet\n"
@@ -297,13 +289,6 @@ void db_search(std::ostringstream& testInput)
 
 void db_delete(std::ostringstream& testInput)
 {
-
-    std::vector<std::string> record;
-
-
-    std::ifstream readFile("snippets.csv");
-
-    bool found_record = false;
 
     std::string delete_term;
 
