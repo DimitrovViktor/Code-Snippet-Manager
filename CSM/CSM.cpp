@@ -4,39 +4,39 @@
 #include <string>
 #include "sqlite/sqlite3.h"
 
-std::string langInput(std::string& userLang); // gets language from user
+std::string langInput(std::string& languageInput); // gets language from user
 
-std::string tagInput(std::vector<std::string>& userTags, std::string& AllTags); // gets tags from user
+std::string tagInput(std::vector<std::string>& tagList, std::string& tagsCombined); // gets tags from user
 
 std::string db_escape(const std::string& escapeText); // escapes db format
 
-void db_search(std::ostringstream& testInput);
+void db_search(std::ostringstream& sqlQueryStream);
 
-void db_delete(std::ostringstream& testInput);
+void db_delete(std::ostringstream& sqlQueryStream);
 
-void db_edit(std::ostringstream& testInput);
+void db_edit(std::ostringstream& sqlQueryStream);
 
 int main()
 {
-    std::ostringstream testInput;
-    std::string testInsert;
+    std::ostringstream sqlQueryStream;
+    std::string sqlQueryString;
 
-    std::string userLang;
-    std::vector<std::string> userTags;
-    std::string AllTags;
+    std::string languageInput;
+    std::vector<std::string> tagList;
+    std::string tagsCombined;
     std::string codeLine;
     std::string codeSnippet;
 
     int menuChoice;
 
-    char* err;
+    char* errorMessage;
     sqlite3* db;
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* statement;
     sqlite3_open("snippets.db", &db);
-    int rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS SNIPPETS(id INTEGER PRIMARY KEY AUTOINCREMENT,code varchar(10000), language varchar(20), tags varchar(100));", NULL, NULL, &err);
-    if (rc != SQLITE_OK)
+    int resultCode = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS SNIPPETS(id INTEGER PRIMARY KEY AUTOINCREMENT,code varchar(10000), language varchar(20), tags varchar(100));", NULL, NULL, &errorMessage);
+    if (resultCode != SQLITE_OK)
     {
-        std::cout << "error:" << err << std::endl;
+        std::cout << "error:" << errorMessage << std::endl;
     }
     else
     {
@@ -84,14 +84,14 @@ int main()
             }
             else
             {
-                langInput(userLang);
+                langInput(languageInput);
 
-                tagInput(userTags, AllTags);
+                tagInput(tagList, tagsCombined);
 
-                testInput.str("");
-                testInput << "INSERT INTO Snippets(code, language, tags) VALUES ('" << db_escape(codeSnippet) << "', '" << db_escape(userLang) << "', '" << db_escape(AllTags) << "' )";
-                testInsert = testInput.str();
-                rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, &err);
+                sqlQueryStream.str("");
+                sqlQueryStream << "INSERT INTO Snippets(code, language, tags) VALUES ('" << db_escape(codeSnippet) << "', '" << db_escape(languageInput) << "', '" << db_escape(tagsCombined) << "' )";
+                sqlQueryString = sqlQueryStream.str();
+                resultCode = sqlite3_exec(db, sqlQueryString.c_str(), NULL, NULL, &errorMessage);
 
             }
 
@@ -100,15 +100,15 @@ int main()
             break;
 
         case 2: // OPTION 2 (SEARCH SNIPPET)
-            db_search(testInput);
-            testInsert = testInput.str();
-            rc = sqlite3_prepare_v2(db, testInsert.c_str(), -1, &stmt, nullptr);
-            while (sqlite3_step(stmt) == SQLITE_ROW) {
+            db_search(sqlQueryStream);
+            sqlQueryString = sqlQueryStream.str();
+            resultCode = sqlite3_prepare_v2(db, sqlQueryString.c_str(), -1, &statement, nullptr);
+            while (sqlite3_step(statement) == SQLITE_ROW) {
                 // Get column values
-                const unsigned char* id = sqlite3_column_text(stmt, 0);
-                const unsigned char* code = sqlite3_column_text(stmt, 1);
-                const unsigned char* language = sqlite3_column_text(stmt, 2);
-                const unsigned char* tags = sqlite3_column_text(stmt, 3);
+                const unsigned char* id = sqlite3_column_text(statement, 0);
+                const unsigned char* code = sqlite3_column_text(statement, 1);
+                const unsigned char* language = sqlite3_column_text(statement, 2);
+                const unsigned char* tags = sqlite3_column_text(statement, 3);
 
                 // Print results
                 std::cout << "----------------------------- ID [" << (id ? reinterpret_cast<const char*>(id) : "") << "] -----------------------------\n";
@@ -120,16 +120,16 @@ int main()
             break;
 
         case 3: // OPTION 3 (DELETE SNIPPET)
-            db_delete(testInput);
-            testInsert = testInput.str();
-            rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, nullptr);
+            db_delete(sqlQueryStream);
+            sqlQueryString = sqlQueryStream.str();
+            resultCode = sqlite3_exec(db, sqlQueryString.c_str(), NULL, NULL, nullptr);
 
             break;
 
         case 4: // OPTION 4 (EDIT SNIPPET)
-            db_edit(testInput);
-            testInsert = testInput.str();
-            rc = sqlite3_exec(db, testInsert.c_str(), NULL, NULL, nullptr);
+            db_edit(sqlQueryStream);
+            sqlQueryString = sqlQueryStream.str();
+            resultCode = sqlite3_exec(db, sqlQueryString.c_str(), NULL, NULL, nullptr);
 
             break;
 
@@ -141,14 +141,14 @@ int main()
 
 }
 
-std::string langInput(std::string& userLang)
+std::string langInput(std::string& languageInput)
 {
     std::cout << "Enter the programming language (e.g., C++, Python, Java): ";
-    std::cin >> userLang;
-    return userLang;
+    std::cin >> languageInput;
+    return languageInput;
 }
 
-std::string tagInput(std::vector<std::string>& userTags, std::string& AllTags)
+std::string tagInput(std::vector<std::string>& tagList, std::string& tagsCombined)
 {
     std::string temp;
     int tagCount{ 0 };
@@ -176,25 +176,25 @@ std::string tagInput(std::vector<std::string>& userTags, std::string& AllTags)
             {
                 std::cout << "Enter tag #" << j + 1 << " : ";
                 std::cin >> temp;
-                userTags.push_back(temp);
+                tagList.push_back(temp);
             }
         }
 
     } while (tagCount < 1 || tagCount > tagMax);
 
-    for (size_t k = 0; k < userTags.size(); k++) // Add tags
+    for (size_t k = 0; k < tagList.size(); k++) // Add tags
     {
-        if (k == userTags.size() - 1)
+        if (k == tagList.size() - 1)
         {
-            AllTags += userTags[k];
+            tagsCombined += tagList[k];
         }
         else
         {
-            AllTags += userTags[k] + ",";
+            tagsCombined += tagList[k] + ",";
         }
     }
 
-    return AllTags;
+    return tagsCombined;
 }
 
 std::string db_escape(const std::string& escapeText) {
@@ -222,10 +222,10 @@ std::string db_escape(const std::string& escapeText) {
     return escapeText;
 }
 
-void db_search(std::ostringstream& testInput)
+void db_search(std::ostringstream& sqlQueryStream)
 {
 
-    std::string search_term;
+    std::string searchTerm;
 
     std::cout << "You chose [2] Search snippet\n"
         << "Would you like to search by: \n"
@@ -243,84 +243,84 @@ void db_search(std::ostringstream& testInput)
     {
     case 1:
         std::cout << "You chose [1] Language Search\n Pick a language: ";
-        std::cin >> search_term;
+        std::cin >> searchTerm;
 
-        testInput.str("");
-        testInput << " SELECT * FROM Snippets WHERE language LIKE '%" << search_term << "%'";
+        sqlQueryStream.str("");
+        sqlQueryStream << " SELECT * FROM Snippets WHERE language LIKE '%" << searchTerm << "%'";
 
         break;
 
     case 2:
         std::cout << "You chose [2] Tag Search\n Pick a tag: ";
-        std::cin >> search_term;
+        std::cin >> searchTerm;
 
-        testInput.str("");
-        testInput << " SELECT * FROM Snippets WHERE tags LIKE '%" << search_term << "%'";
+        sqlQueryStream.str("");
+        sqlQueryStream << " SELECT * FROM Snippets WHERE tags LIKE '%" << searchTerm << "%'";
 
         break;
 
     case 3:
         std::cout << "You chose [3] Word Search\n Pick a word: ";
-        std::cin >> search_term;
+        std::cin >> searchTerm;
 
-        testInput.str("");
-        testInput << " SELECT * FROM Snippets WHERE code LIKE '%" << search_term << "%'";
+        sqlQueryStream.str("");
+        sqlQueryStream << " SELECT * FROM Snippets WHERE code LIKE '%" << searchTerm << "%'";
 
         break;
 
     case 4:
         std::cout << "You chose [4] ID(number) search\n Pick an ID number: ";
-        std::cin >> search_term;
+        std::cin >> searchTerm;
 
-        testInput.str("");
-        testInput << " SELECT * FROM Snippets WHERE id =" << search_term;
+        sqlQueryStream.str("");
+        sqlQueryStream << " SELECT * FROM Snippets WHERE id =" << searchTerm;
 
         break;
 
     case 5:
         std::cout << "[5] Show all snippets\n";
 
-        testInput.str("");
-        testInput << "SELECT * FROM Snippets";
+        sqlQueryStream.str("");
+        sqlQueryStream << "SELECT * FROM Snippets";
 
         break;
     }
 }
 
-void db_delete(std::ostringstream& testInput)
+void db_delete(std::ostringstream& sqlQueryStream)
 {
 
-    std::string delete_term;
+    std::string deleteId;
 
     std::cout << "You chose to DELETE a snippet.\n Pick an ID number: ";
-    std::cin >> delete_term;
+    std::cin >> deleteId;
 
-    testInput.str("");
-    testInput << " DELETE FROM Snippets WHERE id =" << delete_term;
+    sqlQueryStream.str("");
+    sqlQueryStream << " DELETE FROM Snippets WHERE id =" << deleteId;
 
 }
 
-void db_edit(std::ostringstream& testInput)
+void db_edit(std::ostringstream& sqlQueryStream)
 {
 
-    std::string editID;
+    std::string editId;
     int editOption;
     std::string newCodeLine;
     std::string newCodeSnippet = "";
     std::vector<std::string> newTags;
     std::string editTags;
-    std::string newLang;
+    std::string newLanguage;
 
     std::cout << "You chose to EDIT a snippet.\n Pick an ID number: ";
-    std::cin >> editID;
+    std::cin >> editId;
     std::cout << "What would you like to edit?\n[1] Code replace\n[2] Tags replace\n[3] Language replace \nYour choice : ";
     std::cin >> editOption;
 
-    testInput.str("");
-    testInput << " UPDATE Snippets";
+    sqlQueryStream.str("");
+    sqlQueryStream << " UPDATE Snippets";
     switch (editOption) {
     case 1:
-        std::cout << "You chose to REPLACE the CODE of snippet #" << editID << ".\n";
+        std::cout << "You chose to REPLACE the CODE of snippet #" << editId << ".\n";
         std::cout << "Enter the new code snippet below (use doneEdit to finish editing):\n";
 
         while (std::getline(std::cin, newCodeLine))
@@ -340,28 +340,28 @@ void db_edit(std::ostringstream& testInput)
             }
 
         }
-        testInput << " SET code ='" << db_escape(newCodeSnippet) << "'";
+        sqlQueryStream << " SET code ='" << db_escape(newCodeSnippet) << "'";
 
-        testInput << " WHERE id ='" << editID << "'";
+        sqlQueryStream << " WHERE id ='" << editId << "'";
         break;
 
     case 2:
-        std::cout << "You chose to REPLACE the TAGS of snippet #" << editID << ".\n";
+        std::cout << "You chose to REPLACE the TAGS of snippet #" << editId << ".\n";
         std::cout << "The tags will be reset and you can pick new ones now.\n";
         tagInput(newTags, editTags);
-        
-        testInput << " SET tags ='" << db_escape(editTags) << "'";
 
-        testInput << " WHERE id ='" << editID << "'";
+        sqlQueryStream << " SET tags ='" << db_escape(editTags) << "'";
+
+        sqlQueryStream << " WHERE id ='" << editId << "'";
 
         break;
 
     case 3:
-        std::cout << "You chose to REPLACE the LANGUAGE of snippet #" << editID << ".\n";
-        langInput(newLang);
+        std::cout << "You chose to REPLACE the LANGUAGE of snippet #" << editId << ".\n";
+        langInput(newLanguage);
 
-        testInput << " SET language ='" << db_escape(newLang) << "'";
-        testInput << " WHERE id ='" << editID << "'";
+        sqlQueryStream << " SET language ='" << db_escape(newLanguage) << "'";
+        sqlQueryStream << " WHERE id ='" << editId << "'";
         break;
     }
 
