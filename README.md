@@ -1,7 +1,14 @@
-# A simple C++ Code Snippet Manager (CSM)
+# <div align="center"> A simple C++ Code Snippet Manager (CSM) </div>
+
+<div align="center">
+
+[![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)](#)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
 A lightweight CLI app for storing, searching, editing, and deleting programming code snippets.
 CSM uses SQLite and has a simple interactive menu for managing snippet data.
+
+</div>
 
 ---
 
