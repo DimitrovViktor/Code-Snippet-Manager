@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CSM</class>
+ <widget class="QMainWindow" name="CSM">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Code Snippet Manager</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item>
+     <layout class="QHBoxLayout" name="topBar">
+      <item>
+       <widget class="QLineEdit" name="search_bar">
+        <property name="placeholderText">
+         <string>Search snippets...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="filter_combo">
+        <item>
+         <property name="text">
+          <string>All</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Language</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tag</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Code</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="contentLayout">
+      <item>
+       <widget class="QListWidget" name="snippet_list">
+        <property name="minimumSize">
+         <size>
+          <width>250</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="previewLayout">
+        <item>
+         <widget class="QLabel" name="preview_lang_label">
+          <property name="text">
+           <string>Language: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="preview_tags_label">
+          <property name="text">
+           <string>Tags: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="preview_code">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="btnLayout">
+      <item>
+       <widget class="QPushButton" name="add_btn">
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="edit_btn">
+        <property name="text">
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="delete_btn">
+        <property name="text">
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="copy_btn">
+        <property name="text">
+         <string>Copy</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
