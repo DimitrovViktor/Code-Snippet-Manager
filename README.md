@@ -69,6 +69,3 @@ Asks for ID and allows users to:
  - Replace Tags
  - Replace Language
 
-## To-do:
-
- - Add GUI/TUI
