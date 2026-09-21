@@ -17,7 +17,7 @@ CSM uses SQLite and has a simple interactive menu for managing snippet data.
 
 ---
 
-## Overview:
+## Overview
 
 The Code Snippet Manager is designed to help with organizing small pieces of code by language and tags.
 
@@ -27,7 +27,7 @@ Each snippet entry contains:
  - Tag(s)
  - Automatically assigned ID
 
-## Features:
+## Features
 
 ### Menu
 
@@ -37,6 +37,8 @@ The menu has four options:
  - Search Snippet
  - Delete Snippet
  - Edit Snippet
+
+![Program](https://github.com/user-attachments/assets/6f9beb4f-3e1c-4904-ae05-b17c986f2d10)
 
 ### Add Snippet
 
@@ -54,8 +56,10 @@ Search modes:
 
  - Language Search - search snippets by language
  - Tag Search - search snippets by tag
- - ID Search - serach snippets by ID
+ - ID Search - search snippets by ID
  - Show all snippets
+
+![SearchSnippet](https://github.com/user-attachments/assets/5b350e57-c12b-4f32-8165-f2e49cc8789f)
 
 ### Delete Snippet
 
@@ -69,3 +73,8 @@ Asks for ID and allows users to:
  - Replace Tags
  - Replace Language
 
+![EditSnippet](https://github.com/user-attachments/assets/469739d2-e645-44fa-ab84-a9e396c4f25d)
+
+## Qt GUI Version
+
+The Qt6 desktop application is in the `Qt/CSM/` directory. It provides a search bar with filtering by language, tag, or code, a snippet list with preview, and buttons for adding, editing, deleting, and copying snippets to clipboard.
