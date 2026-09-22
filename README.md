@@ -78,3 +78,7 @@ Asks for ID and allows users to:
 ## Qt GUI Version
 
 The Qt6 desktop application is in the `Qt/CSM/` directory. It provides a search bar with filtering by language, tag, or code, a snippet list with preview, and buttons for adding, editing, deleting, and copying snippets to clipboard.
+
+## Dependencies
+
+- SQlite
