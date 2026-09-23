@@ -81,4 +81,5 @@ The Qt6 desktop application is in the `Qt/CSM/` directory. It provides a search 
 
 ## Dependencies
 
-- SQlite
+ - SQLite - embedded database engine
+ - Qt6 - GUI framework
