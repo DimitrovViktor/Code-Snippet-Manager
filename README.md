@@ -88,5 +88,6 @@ The Qt6 desktop application is in the `Qt/CSM/` directory. It provides a search 
 
 1. Download SQLite amalgamation
 2. Place `sqlite3.c` and `sqlite3.h` inside `Qt/CSM/sqlite/`
+`next steps are for Qt (GUI)`
 3. Open `Qt/CSM/CMakeLists.txt` in Qt Creator
 4. Select a Desktop kit and build
